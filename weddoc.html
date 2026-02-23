@@ -1,0 +1,3603 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WedDoc — Wedding Contract & Invoice Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════════════════
+   CSS VARIABLES & RESET
+══════════════════════════════════════════════════════ */
+    :root {
+      --bg: #F8F6F3;
+      --bg-card: #FFFFFF;
+      --bg-secondary: #F0EDE8;
+      --accent: #B8860B;
+      --accent-light: #D4A843;
+      --accent-muted: #F5E6C8;
+      --text-primary: #1C1917;
+      --text-secondary: #57534E;
+      --text-muted: #A8A29E;
+      --border: #E7E5E4;
+      --border-focus: #B8860B;
+      --success: #15803D;
+      --error: #DC2626;
+      --shadow: rgba(0, 0, 0, 0.05);
+      --radius: 10px;
+      --transition: 0.2s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   APP HEADER
+══════════════════════════════════════════════════════ */
+    .app-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .app-header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .app-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      text-decoration: none;
+      line-height: 1;
+    }
+
+    .app-logo span {
+      color: var(--accent);
+    }
+
+    .app-tagline {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      display: none;
+    }
+
+    @media(min-width: 480px) {
+      .app-tagline {
+        display: block;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-history {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-history:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ══════════════════════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════════════════════ */
+    .app-main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   SECTION HEADERS
+══════════════════════════════════════════════════════ */
+    .form-section {
+      background: var(--bg-card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .section-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--accent), transparent);
+      margin-bottom: 20px;
+      opacity: 0.4;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   FORM ELEMENTS
+══════════════════════════════════════════════════════ */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .form-label .required {
+      color: var(--accent);
+      margin-left: 2px;
+    }
+
+    .form-label .optional {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.75rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-card);
+      transition: var(--transition);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.12);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error {
+      border-color: var(--error);
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-6px);
+      }
+
+      60% {
+        transform: translateX(6px);
+      }
+    }
+
+    .form-error {
+      font-size: 0.75rem;
+      color: var(--error);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.7;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0 20px;
+    }
+
+    @media(min-width: 560px) {
+      .form-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #9a700a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(184, 134, 11, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+
+    .btn-ghost:hover {
+      background: var(--accent-muted);
+    }
+
+    .btn-danger {
+      background: #FEF2F2;
+      color: var(--error);
+      border: 1px solid #FECACA;
+    }
+
+    .btn-danger:hover {
+      background: #FECACA;
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 0.78rem;
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 0.95rem;
+      border-radius: 10px;
+    }
+
+    .btn-xl {
+      padding: 16px 32px;
+      font-size: 1rem;
+      border-radius: 12px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   VENDOR PROFILE SECTION
+══════════════════════════════════════════════════════ */
+    .vendor-saved-badge {
+      background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+      border: 1px solid #86EFAC;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .vendor-saved-badge .badge-text {
+      font-size: 0.82rem;
+      color: #166534;
+      font-weight: 500;
+    }
+
+    .vendor-saved-badge .badge-edit {
+      font-size: 0.78rem;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .vendor-saved-badge .badge-edit:hover {
+      text-decoration: underline;
+    }
+
+    /* Logo upload area */
+    .logo-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--bg-secondary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-upload-area:hover {
+      border-color: var(--accent);
+      background: var(--accent-muted);
+    }
+
+    .logo-upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+      display: none;
+      margin: 0 auto 8px;
+    }
+
+    .logo-preview.show {
+      display: block;
+    }
+
+    .logo-upload-icon {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .logo-upload-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ══════════════════════════════════════════════════════
+   DOCUMENT NUMBER PREVIEW
+══════════════════════════════════════════════════════ */
+    .doc-number-preview {
+      background: var(--accent-muted);
+      border: 1px solid rgba(184, 134, 11, 0.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: -4px;
+      margin-bottom: 16px;
+    }
+
+    .doc-number-preview strong {
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   PACKAGE CARDS
+══════════════════════════════════════════════════════ */
+    .package-toggle {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    .pkg-toggle-btn {
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .pkg-toggle-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+
+    .packages-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media(min-width: 560px) {
+      .packages-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .package-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-card);
+      position: relative;
+    }
+
+    .package-card:hover {
+      border-color: var(--accent-light);
+      box-shadow: 0 4px 16px rgba(184, 134, 11, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .package-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-muted);
+      box-shadow: 0 4px 20px rgba(184, 134, 11, 0.2);
+    }
+
+    .pkg-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 10px;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .pkg-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+      color: var(--text-primary);
+    }
+
+    .pkg-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .pkg-items {
+      list-style: none;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .pkg-items li::before {
+      content: '◆ ';
+      color: var(--accent);
+      font-size: 0.6em;
+      vertical-align: middle;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   ITEMS TABLE
+══════════════════════════════════════════════════════ */
+    .items-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table.items-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .items-table th {
+      background: var(--text-primary);
+      color: #fff;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .items-table th:last-child {
+      text-align: center;
+    }
+
+    .items-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .items-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .items-table tr:nth-child(even) td {
+      background: var(--bg-secondary);
+    }
+
+    .items-table .td-no {
+      width: 36px;
+      text-align: center;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .items-table .td-desc {
+      min-width: 140px;
+    }
+
+    .items-table .td-qty {
+      width: 60px;
+    }
+
+    .items-table .td-unit {
+      width: 80px;
+    }
+
+    .items-table .td-price {
+      width: 110px;
+    }
+
+    .items-table .td-subtotal {
+      width: 110px;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .items-table .td-action {
+      width: 40px;
+      text-align: center;
+    }
+
+    .items-table input {
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      padding: 4px 6px;
+      font-size: 0.82rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: transparent;
+      color: var(--text-primary);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .items-table input:focus {
+      border-color: var(--border-focus);
+      background: var(--bg-card);
+    }
+
+    .items-table input.num-input {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .btn-remove-row {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-remove-row:hover {
+      color: var(--error);
+      background: #FEF2F2;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   FINANCIAL SUMMARY
+══════════════════════════════════════════════════════ */
+    .finance-summary {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+
+    .finance-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 0.86rem;
+    }
+
+    .finance-row.total-after-discount {
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .finance-row.grand-total {
+      padding: 10px 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .finance-row.sisa {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .finance-label {
+      color: var(--text-secondary);
+    }
+
+    .finance-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    .finance-row.discount .finance-value {
+      color: var(--success);
+    }
+
+    .discount-row {
+      display: grid;
+      grid-template-columns: 1fr 100px;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    @media(min-width: 480px) {
+      .discount-row {
+        grid-template-columns: 1fr 80px 120px;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+   GENERATE BUTTONS SECTION
+══════════════════════════════════════════════════════ */
+    .generate-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 2px 12px var(--shadow);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .generate-section h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .generate-btns-main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media(min-width: 480px) {
+      .generate-btns-main {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .generate-btn-all {
+      width: 100%;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   PREVIEW AREA
+══════════════════════════════════════════════════════ */
+    .preview-area {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 2px 12px var(--shadow);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .preview-area.show {
+      display: block;
+    }
+
+    .preview-header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .preview-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preview-body {
+      background: #E8E8E8;
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   TOAST NOTIFICATION
+══════════════════════════════════════════════════════ */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--text-primary);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      border-left: 4px solid var(--accent);
+      pointer-events: none;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      white-space: nowrap;
+    }
+
+    .toast.error {
+      background: #7F1D1D;
+      border-left-color: #EF4444;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+   MODAL (History)
+══════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: 14px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 16px 24px;
+      overflow-y: auto;
+    }
+
+    .history-list {
+      list-style: none;
+    }
+
+    .history-item {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .history-item:hover {
+      border-color: var(--accent);
+      background: var(--accent-muted);
+    }
+
+    .history-item-title {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .history-item-meta {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 32px 0;
+      font-size: 0.88rem;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   WA BUTTON
+══════════════════════════════════════════════════════ */
+    .btn-wa {
+      background: #25D366;
+      color: #fff;
+    }
+
+    .btn-wa:hover {
+      background: #128C7E;
+      transform: translateY(-1px);
+    }
+
+    /* ══════════════════════════════════════════════════════
+   STATUS BADGE
+══════════════════════════════════════════════════════ */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .status-lunas {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #86EFAC;
+    }
+
+    .status-dp {
+      background: #FEF9C3;
+      color: #854D0E;
+      border: 1px solid #FDE047;
+    }
+
+    .status-belum {
+      background: #FEF2F2;
+      color: #991B1B;
+      border: 1px solid #FECACA;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   TERMS SECTION
+══════════════════════════════════════════════════════ */
+    .terms-textarea {
+      min-height: 340px;
+      font-size: 0.82rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.8;
+    }
+
+    .terms-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      justify-content: flex-end;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   COLLAPSIBLE SECTION
+══════════════════════════════════════════════════════ */
+    .vendor-form-collapse {
+      display: none;
+    }
+
+    .vendor-form-collapse.show {
+      display: block;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   ██████████████████████████████████████████████████
+   DOCUMENT STYLES — SPK & INVOICE
+   (These styles apply to the documents themselves)
+   ██████████████████████████████████████████████████
+══════════════════════════════════════════════════════ */
+
+    /* Import Playfair + Lato for documents */
+    /* Already imported above in Google Fonts link */
+
+    /* Document wrapper on screen */
+    .doc-wrap {
+      background: #E8E8E8;
+      padding: 20px;
+    }
+
+    .doc-page {
+      background: #FFFFFF;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      box-shadow: 0 4px 40px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── SPK DOCUMENT ──────────────────────────────────── */
+    .doc-spk-page {
+      padding: 18mm;
+      font-family: 'Lato', sans-serif;
+      font-size: 10pt;
+      color: #1C1917;
+      position: relative;
+    }
+
+    /* Watermark */
+    .doc-watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      font-size: 120pt;
+      font-weight: 900;
+      color: rgba(0, 0, 0, 0.04);
+      font-family: 'Lato', sans-serif;
+      pointer-events: none;
+      z-index: 0;
+      white-space: nowrap;
+      letter-spacing: 0.1em;
+    }
+
+    .doc-spk-page>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* SPK Header */
+    .spk-header {
+      background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+      margin: -18mm -18mm 0 -18mm;
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 3px solid #B8860B;
+    }
+
+    .spk-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .spk-logo-img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .spk-logo-placeholder {
+      width: 52px;
+      height: 52px;
+      background: rgba(184, 134, 11, 0.3);
+      border-radius: 6px;
+      border: 1.5px solid rgba(184, 134, 11, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #B8860B;
+    }
+
+    .spk-studio-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15pt;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.2;
+    }
+
+    .spk-studio-tagline {
+      font-family: 'Lato', sans-serif;
+      font-size: 8pt;
+      color: rgba(255, 255, 255, 0.6);
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    .spk-studio-contact {
+      font-size: 7.5pt;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 4px;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .spk-header-right {
+      text-align: right;
+    }
+
+    .spk-doc-type {
+      font-family: 'Playfair Display', serif;
+      font-size: 13pt;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .spk-doc-meta {
+      font-size: 7.5pt;
+      color: rgba(255, 255, 255, 0.75);
+      margin-top: 6px;
+      line-height: 1.8;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .spk-doc-meta strong {
+      color: #B8860B;
+    }
+
+    /* SPK Section Headers */
+    .spk-section {
+      margin-top: 16pt;
+    }
+
+    .spk-section-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #B8860B;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8pt;
+    }
+
+    .spk-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, #B8860B40, transparent);
+    }
+
+    /* Pihak-Pihak */
+    .spk-parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10pt;
+    }
+
+    .spk-party-box {
+      border: 1px solid #E7E5E4;
+      border-radius: 5pt;
+      padding: 10pt;
+      background: #FAFAFA;
+    }
+
+    .spk-party-box-header {
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #B8860B;
+      margin-bottom: 6pt;
+      padding-bottom: 5pt;
+      border-bottom: 1.5px solid #B8860B40;
+    }
+
+    .spk-party-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1C1917;
+      margin-bottom: 3pt;
+      line-height: 1.3;
+    }
+
+    .spk-party-detail {
+      font-size: 8.5pt;
+      color: #57534E;
+      line-height: 1.7;
+    }
+
+    .spk-party-label {
+      display: inline-block;
+      background: #1C1917;
+      color: #fff;
+      font-size: 6.5pt;
+      padding: 2pt 6pt;
+      border-radius: 10pt;
+      margin-top: 5pt;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    /* Event Detail Box */
+    .spk-event-box {
+      border: 1.5px solid rgba(184, 134, 11, 0.4);
+      border-radius: 5pt;
+      background: #FAF5E4;
+      padding: 10pt 12pt;
+    }
+
+    .spk-event-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5pt 12pt;
+    }
+
+    .spk-event-item {
+      font-size: 8.5pt;
+      line-height: 1.6;
+    }
+
+    .spk-event-label {
+      color: #B8860B;
+      font-weight: 700;
+      font-size: 7.5pt;
+    }
+
+    .spk-event-value {
+      color: #1C1917;
+    }
+
+    /* SPK Table */
+    .spk-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+    }
+
+    .spk-table th {
+      background: #292524;
+      color: #FFFFFF;
+      padding: 6pt 8pt;
+      text-align: left;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .spk-table td {
+      padding: 6pt 8pt;
+      border-bottom: 0.5pt solid #E7E5E4;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .spk-table tr:nth-child(even) td {
+      background: #FAF9F7;
+    }
+
+    .spk-table .td-no {
+      width: 24pt;
+      text-align: center;
+      color: #A8A29E;
+    }
+
+    /* Finance Box */
+    .spk-finance-box {
+      border-left: 3pt solid #B8860B;
+      background: #FAFAFA;
+      border: 1pt solid #E7E5E4;
+      border-left: 3pt solid #B8860B;
+      border-radius: 4pt;
+      padding: 10pt 12pt;
+    }
+
+    .spk-finance-table {
+      width: 100%;
+      font-size: 8.5pt;
+    }
+
+    .spk-finance-table td {
+      padding: 3pt 4pt;
+      vertical-align: middle;
+    }
+
+    .spk-finance-table .f-label {
+      color: #57534E;
+    }
+
+    .spk-finance-table .f-val {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      white-space: nowrap;
+    }
+
+    .spk-finance-table .f-divider td {
+      border-top: 0.5pt solid #E7E5E4;
+      padding-top: 5pt;
+    }
+
+    .spk-finance-table .f-double-divider td {
+      border-top: 2pt double #1C1917;
+      padding-top: 5pt;
+    }
+
+    .spk-finance-table .f-total td {
+      font-weight: 700;
+      font-size: 9pt;
+    }
+
+    .spk-finance-table .f-sisa td {
+      font-weight: 700;
+      font-size: 10pt;
+      color: #B8860B;
+    }
+
+    .spk-rekening-box {
+      margin-top: 8pt;
+      padding: 7pt 10pt;
+      background: #F5E6C8;
+      border-radius: 4pt;
+      font-size: 8pt;
+      color: #57534E;
+    }
+
+    .spk-rekening-box strong {
+      color: #1C1917;
+    }
+
+    /* SPK Terms */
+    .spk-terms-content {
+      font-size: 8.5pt;
+      line-height: 1.75;
+      color: #1C1917;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .spk-pasal-title {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #1C1917;
+      margin-top: 8pt;
+    }
+
+    /* Signature */
+    .spk-signature-section {
+      margin-top: 20pt;
+      padding-top: 16pt;
+      border-top: 0.5pt solid #E7E5E4;
+    }
+
+    .spk-sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20pt;
+    }
+
+    .spk-sig-box {
+      text-align: center;
+    }
+
+    .spk-sig-role {
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #B8860B;
+      margin-bottom: 4pt;
+    }
+
+    .spk-sig-space {
+      height: 48pt;
+      border-bottom: 1pt solid #1C1917;
+      margin-bottom: 4pt;
+    }
+
+    .spk-sig-name {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #1C1917;
+    }
+
+    .spk-sig-title {
+      font-size: 7.5pt;
+      color: #57534E;
+    }
+
+    /* SPK Footer */
+    .spk-footer {
+      margin-top: 14pt;
+      padding-top: 8pt;
+      border-top: 0.5pt solid #B8860B40;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 7pt;
+      color: #A8A29E;
+      text-align: center;
+      gap: 6pt;
+    }
+
+    /* ── INVOICE DOCUMENT ──────────────────────────────── */
+    .doc-invoice-page {
+      padding: 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 10pt;
+      color: #1C1917;
+      position: relative;
+    }
+
+    /* Invoice Header Strip */
+    .inv-header {
+      background: #B8860B;
+      padding: 20pt 22pt;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16pt;
+    }
+
+    .inv-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12pt;
+    }
+
+    .inv-logo-img {
+      width: 50pt;
+      height: 50pt;
+      object-fit: contain;
+      border-radius: 5pt;
+      background: rgba(255, 255, 255, 0.15);
+      filter: brightness(0) invert(1);
+    }
+
+    .inv-logo-placeholder {
+      width: 50pt;
+      height: 50pt;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 5pt;
+      border: 1.5pt solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: #fff;
+    }
+
+    .inv-studio-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.2;
+    }
+
+    .inv-studio-tagline {
+      font-size: 7.5pt;
+      color: rgba(255, 255, 255, 0.75);
+      font-style: italic;
+      margin-top: 2pt;
+    }
+
+    .inv-header-right {
+      text-align: right;
+    }
+
+    .inv-type {
+      font-family: 'Playfair Display', serif;
+      font-size: 18pt;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .inv-meta {
+      font-size: 7.5pt;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 6pt;
+      line-height: 1.9;
+      font-family: 'Lato', sans-serif;
+    }
+
+    /* Invoice Body */
+    .inv-body {
+      padding: 14pt 22pt 18pt;
+    }
+
+    /* From / To */
+    .inv-parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16pt;
+      margin-bottom: 12pt;
+    }
+
+    .inv-party-label {
+      font-size: 6.5pt;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #B8860B;
+      margin-bottom: 5pt;
+    }
+
+    .inv-party-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1C1917;
+      line-height: 1.3;
+      margin-bottom: 2pt;
+    }
+
+    .inv-party-detail {
+      font-size: 8pt;
+      color: #57534E;
+      line-height: 1.7;
+    }
+
+    .inv-divider {
+      height: 1.5pt;
+      background: linear-gradient(to right, #B8860B, #B8860B40, transparent);
+      margin-bottom: 10pt;
+    }
+
+    /* Event info bar */
+    .inv-event-bar {
+      background: #FAF5E4;
+      border: 1pt solid rgba(184, 134, 11, 0.3);
+      border-radius: 4pt;
+      padding: 7pt 10pt;
+      margin-bottom: 12pt;
+      font-size: 7.5pt;
+      color: #57534E;
+      display: flex;
+      gap: 12pt;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .inv-event-chip {
+      display: flex;
+      align-items: center;
+      gap: 4pt;
+    }
+
+    .inv-event-chip strong {
+      color: #B8860B;
+    }
+
+    /* Invoice Table */
+    .inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin-bottom: 12pt;
+    }
+
+    .inv-table th {
+      background: #F5E6C8;
+      color: #1C1917;
+      padding: 6pt 8pt;
+      text-align: left;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1.5pt solid #B8860B;
+    }
+
+    .inv-table th:last-child,
+    .inv-table td:last-child {
+      text-align: right;
+    }
+
+    .inv-table th:nth-child(3),
+    .inv-table td:nth-child(3) {
+      text-align: center;
+    }
+
+    .inv-table td {
+      padding: 6pt 8pt;
+      border-bottom: 0.5pt solid #E7E5E4;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .inv-table tr:nth-child(even) td {
+      background: #FAF9F7;
+    }
+
+    .inv-table .td-no {
+      width: 18pt;
+      text-align: center;
+      color: #A8A29E;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .inv-table .td-price,
+    .inv-table .td-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+    }
+
+    /* Finance summary box */
+    .inv-finance {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12pt;
+    }
+
+    .inv-finance-box {
+      width: 200pt;
+      border: 1pt solid #E7E5E4;
+      border-radius: 5pt;
+      overflow: hidden;
+    }
+
+    .inv-finance-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5pt 10pt;
+      font-size: 8.5pt;
+      border-bottom: 0.5pt solid #E7E5E4;
+    }
+
+    .inv-finance-row:last-child {
+      border-bottom: none;
+    }
+
+    .inv-finance-row.total-row {
+      background: #1C1917;
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 9.5pt;
+    }
+
+    .inv-finance-row .f-val {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .inv-finance-row.sisa-row {
+      font-weight: 700;
+      color: #B8860B;
+      font-size: 9pt;
+    }
+
+    .inv-finance-row.disc-row .f-val {
+      color: #15803D;
+    }
+
+    .inv-status-area {
+      text-align: right;
+      margin-bottom: 12pt;
+    }
+
+    /* Payment info */
+    .inv-payment-box {
+      border-left: 3pt solid #B8860B;
+      background: #FAF5E4;
+      border: 1pt solid rgba(184, 134, 11, 0.3);
+      border-left: 3pt solid #B8860B;
+      border-radius: 4pt;
+      padding: 10pt 12pt;
+      margin-bottom: 12pt;
+      font-size: 8.5pt;
+      line-height: 1.8;
+    }
+
+    .inv-payment-title {
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #B8860B;
+      margin-bottom: 5pt;
+    }
+
+    /* Notes */
+    .inv-notes-box {
+      background: #FAFAFA;
+      border: 1pt solid #E7E5E4;
+      border-radius: 4pt;
+      padding: 8pt 10pt;
+      margin-bottom: 12pt;
+      font-size: 8pt;
+      color: #57534E;
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    /* Invoice footer */
+    .inv-footer {
+      margin-top: 14pt;
+      padding-top: 8pt;
+      border-top: 1pt solid #B8860B40;
+      text-align: center;
+      font-size: 7.5pt;
+      color: #A8A29E;
+      line-height: 1.8;
+    }
+
+    .inv-footer-thankyou {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 9pt;
+      color: #57534E;
+      margin-bottom: 4pt;
+    }
+
+    /* Watermark circle on invoice */
+    .inv-watermark {
+      position: absolute;
+      bottom: 60pt;
+      right: 20pt;
+      width: 120pt;
+      height: 120pt;
+      border: 8pt solid rgba(184, 134, 11, 0.05);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10pt;
+      font-weight: 900;
+      color: rgba(184, 134, 11, 0.05);
+      letter-spacing: 0.15em;
+      transform: rotate(-20deg);
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════════════════════
+   @MEDIA PRINT
+══════════════════════════════════════════════════════ */
+    @media print {
+      .ui-form {
+        display: none !important;
+      }
+
+      .app-header {
+        display: none !important;
+      }
+
+      .preview-header {
+        display: none !important;
+      }
+
+      .preview-area {
+        display: block !important;
+        box-shadow: none;
+        border: none;
+        margin: 0;
+      }
+
+      .preview-body {
+        padding: 0;
+        max-height: none;
+        overflow: visible;
+        background: white;
+      }
+
+      .doc-wrap {
+        padding: 0;
+        background: white;
+      }
+
+      body.print-spk .doc-invoice {
+        display: none !important;
+      }
+
+      body.print-spk .doc-spk {
+        display: block !important;
+      }
+
+      body.print-invoice .doc-spk {
+        display: none !important;
+      }
+
+      body.print-invoice .doc-invoice {
+        display: block !important;
+      }
+
+      body.print-all .doc-spk {
+        display: block !important;
+      }
+
+      body.print-all .doc-invoice {
+        display: block !important;
+      }
+
+      .doc-invoice {
+        page-break-before: always;
+      }
+
+      .doc-page {
+        box-shadow: none !important;
+        width: 100%;
+        min-height: 0;
+      }
+
+      @page {
+        margin: 0;
+        size: A4;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════════════ */
+    .hidden {
+      display: none !important;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .gap-8 {
+      gap: 8px;
+    }
+
+    .gap-12 {
+      gap: 12px;
+    }
+
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .mt-8 {
+      margin-top: 8px;
+    }
+
+    .mt-12 {
+      margin-top: 12px;
+    }
+
+    .mt-16 {
+      margin-top: 16px;
+    }
+
+    .mb-8 {
+      margin-bottom: 8px;
+    }
+
+    .mb-12 {
+      margin-bottom: 12px;
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Intro bar */
+    .intro-bar {
+      background: linear-gradient(135deg, #1C1917, #292524);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intro-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      background: linear-gradient(to left, rgba(184, 134, 11, 0.15), transparent);
+    }
+
+    .intro-bar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .intro-bar-subtitle {
+      font-size: 0.84rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.5;
+    }
+
+    .intro-bar-subtitle span {
+      color: #D4A843;
+      font-weight: 600;
+    }
+
+    .real-time-preview {
+      background: var(--accent-muted);
+      border: 1px solid rgba(184, 134, 11, 0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .real-time-preview .preview-label {
+      color: var(--text-muted);
+    }
+
+    .real-time-preview .preview-val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Section mode panels */
+    .mode-panel {
+      display: none;
+    }
+
+    .mode-panel.active {
+      display: block;
+    }
+
+    /* Scroll to top of preview */
+    .scroll-anchor {
+      scroll-margin-top: 80px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div>
+        <div class="app-logo">Wed<span>Doc</span></div>
+        <div class="app-tagline">Buat kontrak & invoice pernikahan profesional dalam hitungan menit</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-history" onclick="openHistory()">📋 Riwayat</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Modal History -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Riwayat Dokumen</div>
+        <button class="modal-close" onclick="closeHistory()">✕</button>
+      </div>
+      <div class="modal-body">
+        <ul class="history-list" id="historyList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <main class="app-main ui-form">
+
+    <!-- Intro -->
+    <div class="intro-bar">
+      <div class="intro-bar-title">✦ Selamat Datang di WedDoc</div>
+      <div class="intro-bar-subtitle">
+        Isi form di bawah → Klik <span>Generate</span> → Dokumen SPK & Invoice siap cetak atau simpan sebagai PDF.
+      </div>
+    </div>
+
+    <!-- ═══ SECTION A: VENDOR ═══ -->
+    <div class="form-section" id="sectionA">
+      <div class="section-header">
+        <div class="section-badge">A</div>
+        <div class="section-title">Identitas Studio / Vendor</div>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- Saved Badge -->
+      <div class="vendor-saved-badge hidden" id="vendorSavedBadge">
+        <div class="badge-text">✅ Profil tersimpan — akan otomatis terisi di dokumen</div>
+        <div class="badge-edit" onclick="toggleVendorForm()">Edit Profil ↓</div>
+      </div>
+
+      <div class="vendor-form-collapse show" id="vendorFormCollapse">
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Nama Studio / Usaha <span class="required">*</span></label>
+            <input type="text" class="form-input" id="v_namaStudio" placeholder="Aura Moment Photography">
+            <div class="form-error" id="err_v_namaStudio">Wajib diisi</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Pemilik / PIC <span class="required">*</span></label>
+            <input type="text" class="form-input" id="v_namaPemilik" placeholder="Rizky Pratama">
+            <div class="form-error" id="err_v_namaPemilik">Wajib diisi</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. WhatsApp <span class="required">*</span></label>
+            <input type="tel" class="form-input" id="v_noWa" placeholder="081234567890">
+            <div class="form-error" id="err_v_noWa">Wajib diisi</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email <span class="optional">(opsional)</span></label>
+            <input type="email" class="form-input" id="v_email" placeholder="studio@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alamat / Kota <span class="required">*</span></label>
+            <input type="text" class="form-input" id="v_alamat" placeholder="Tegal, Jawa Tengah">
+            <div class="form-error" id="err_v_alamat">Wajib diisi</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nomor Rekening <span class="optional">(opsional)</span></label>
+            <input type="text" class="form-input" id="v_rekening" placeholder="BCA 1234567890 a.n. Rizky Pratama">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tagline Studio <span class="optional">(opsional)</span></label>
+          <input type="text" class="form-input" id="v_tagline" placeholder="Capturing moments, creating memories">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Logo Studio <span class="optional">(JPG/PNG, opsional)</span></label>
+          <div class="logo-upload-area" id="logoUploadArea">
+            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" id="v_logoFile"
+              onchange="handleLogoUpload(event)">
+            <img class="logo-preview" id="logoPreview" src="" alt="Logo">
+            <span class="logo-upload-icon" id="logoIcon">🖼️</span>
+            <div class="logo-upload-text" id="logoText">Klik atau seret file logo ke sini<br><small>JPG / PNG · Maks.
+                2MB</small></div>
+          </div>
+        </div>
+        <div class="mt-16 flex gap-8 flex-wrap">
+          <button class="btn btn-primary" onclick="saveVendorProfile()">💾 Simpan Profil Saya</button>
+          <button class="btn btn-secondary" id="btnClearLogo" onclick="clearLogo()" style="display:none">🗑️ Hapus
+            Logo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION B: KLIEN ═══ -->
+    <div class="form-section" id="sectionB">
+      <div class="section-header">
+        <div class="section-badge">B</div>
+        <div class="section-title">Data Klien & Acara</div>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="real-time-preview">
+        <span class="preview-label">No. Dokumen akan menjadi:</span>
+        <span class="preview-val" id="docNumPreview">—</span>
+      </div>
+
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Nama Mempelai Pria <span class="required">*</span></label>
+          <input type="text" class="form-input" id="k_namaPria" placeholder="Budi Santoso" oninput="updateDocNumber()">
+          <div class="form-error" id="err_k_namaPria">Wajib diisi</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Mempelai Wanita <span class="required">*</span></label>
+          <input type="text" class="form-input" id="k_namaWanita" placeholder="Siti Rahayu" oninput="updateDocNumber()">
+          <div class="form-error" id="err_k_namaWanita">Wajib diisi</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Panggilan Pria <span class="optional">(opsional)</span></label>
+          <input type="text" class="form-input" id="k_panggilanPria" placeholder="Budi">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Panggilan Wanita <span class="optional">(opsional)</span></label>
+          <input type="text" class="form-input" id="k_panggilanWanita" placeholder="Siti">
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. WhatsApp Klien <span class="required">*</span></label>
+          <input type="tel" class="form-input" id="k_noWa" placeholder="08xxxxxxxxxxx">
+          <div class="form-error" id="err_k_noWa">Wajib diisi</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Klien <span class="optional">(opsional)</span></label>
+          <input type="email" class="form-input" id="k_email" placeholder="klien@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Akad <span class="required">*</span></label>
+          <input type="date" class="form-input" id="a_tglAkad" oninput="updateDocNumber()">
+          <div class="form-error" id="err_a_tglAkad">Wajib diisi</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jam Akad <span class="required">*</span></label>
+          <input type="time" class="form-input" id="a_jamAkad" value="08:00">
+          <div class="form-error" id="err_a_jamAkad">Wajib diisi</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Resepsi <span class="optional">(opsional)</span></label>
+          <input type="date" class="form-input" id="a_tglResepsi">
+          <div class="form-hint">Kosongkan jika sama dengan akad</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jam Resepsi <span class="optional">(opsional)</span></label>
+          <input type="time" class="form-input" id="a_jamResepsi" value="11:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lokasi Akad <span class="required">*</span></label>
+          <input type="text" class="form-input" id="a_lokasiAkad" placeholder="Masjid Agung Tegal">
+          <div class="form-error" id="err_a_lokasiAkad">Wajib diisi</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lokasi Resepsi <span class="optional">(opsional)</span></label>
+          <input type="text" class="form-input" id="a_lokasiResepsi"
+            placeholder="Gedung Serbaguna (kosongkan jika sama)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estimasi Tamu <span class="optional">(opsional)</span></label>
+        <input type="number" class="form-input" id="a_estimasiTamu" placeholder="300" style="max-width:160px">
+      </div>
+    </div>
+
+    <!-- ═══ SECTION C: LAYANAN ═══ -->
+    <div class="form-section" id="sectionC">
+      <div class="section-header">
+        <div class="section-badge">C</div>
+        <div class="section-title">Paket & Layanan</div>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- Toggle -->
+      <div class="package-toggle">
+        <button class="pkg-toggle-btn active" id="btnModePaket" onclick="switchMode('paket')">📦 Pilih Paket</button>
+        <button class="pkg-toggle-btn" id="btnModeManual" onclick="switchMode('manual')">✏️ Input Manual</button>
+      </div>
+
+      <!-- Mode Paket -->
+      <div class="mode-panel active" id="modePaket">
+        <div class="packages-grid">
+          <!-- Silver -->
+          <div class="package-card" id="pkgSilver" onclick="selectPackage('silver')">
+            <div class="pkg-name">Silver</div>
+            <div class="pkg-price">Rp 3.500.000</div>
+            <ul class="pkg-items">
+              <li>Dokumentasi foto 6 jam</li>
+              <li>1 fotografer</li>
+              <li>200 foto edit soft copy</li>
+              <li>Google Drive (14 hari)</li>
+            </ul>
+          </div>
+          <!-- Gold -->
+          <div class="package-card" id="pkgGold" onclick="selectPackage('gold')">
+            <div class="pkg-badge">★ POPULER</div>
+            <div class="pkg-name">Gold</div>
+            <div class="pkg-price">Rp 6.500.000</div>
+            <ul class="pkg-items">
+              <li>Foto + video 8 jam</li>
+              <li>1 fotografer + 1 videografer</li>
+              <li>300 foto + highlight 5 mnt</li>
+              <li>Cetak 4R (20 lembar)</li>
+              <li>Google Drive (21 hari)</li>
+            </ul>
+          </div>
+          <!-- Platinum -->
+          <div class="package-card" id="pkgPlatinum" onclick="selectPackage('platinum')">
+            <div class="pkg-name">Platinum</div>
+            <div class="pkg-price">Rp 12.000.000</div>
+            <ul class="pkg-items">
+              <li>Foto + video + drone 10 jam</li>
+              <li>2 fotografer + 1 videografer</li>
+              <li>500 foto + cinematic 10 mnt</li>
+              <li>SDE 3 mnt + Photobook A4</li>
+              <li>Google Drive (30 hari)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode Manual -->
+      <div class="mode-panel" id="modeManual">
+        <p class="text-muted mb-12">Tambahkan item layanan secara manual.</p>
+      </div>
+
+      <!-- Items Table (shared) -->
+      <div class="items-table-wrap">
+        <table class="items-table" id="itemsTable">
+          <thead>
+            <tr>
+              <th class="td-no">No</th>
+              <th class="td-desc">Deskripsi Item</th>
+              <th class="td-qty">Qty</th>
+              <th class="td-unit">Satuan</th>
+              <th class="td-price">Harga Satuan</th>
+              <th class="td-subtotal">Subtotal</th>
+              <th class="td-action">—</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTbody"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-secondary btn-sm mt-8" onclick="addItemRow()">+ Tambah Item</button>
+
+      <!-- Diskon & DP -->
+      <div style="margin-top:20px">
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Diskon</label>
+            <div class="discount-row">
+              <input type="number" class="form-input" id="disc_val" placeholder="0" min="0" oninput="recalc()">
+              <select class="form-select" id="disc_type" onchange="recalc()">
+                <option value="persen">%</option>
+                <option value="rupiah">Rp</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Uang Muka / DP (Sudah Dibayar)</label>
+            <input type="number" class="form-input mono" id="dp_val" placeholder="0" min="0" oninput="recalc()">
+          </div>
+        </div>
+        <div class="form-group mt-8">
+          <label class="form-label">Catatan Keuangan <span class="optional">(opsional)</span></label>
+          <input type="text" class="form-input" id="fin_catatan" placeholder="Mis: DP sudah diterima 15 Feb 2025">
+        </div>
+      </div>
+
+      <!-- Finance Summary Preview -->
+      <div class="finance-summary" id="financeSummary">
+        <div class="finance-row">
+          <span class="finance-label">Subtotal</span>
+          <span class="finance-value" id="fs_subtotal">Rp 0</span>
+        </div>
+        <div class="finance-row discount">
+          <span class="finance-label">Diskon</span>
+          <span class="finance-value" id="fs_diskon">Rp 0</span>
+        </div>
+        <div class="finance-row total-after-discount">
+          <span class="finance-label">Total Setelah Diskon</span>
+          <span class="finance-value" id="fs_totalDiskon">Rp 0</span>
+        </div>
+        <div class="finance-row">
+          <span class="finance-label">DP Dibayarkan</span>
+          <span class="finance-value" id="fs_dp">Rp 0</span>
+        </div>
+        <div class="finance-row sisa">
+          <span class="finance-label">Sisa Pembayaran</span>
+          <span class="finance-value" id="fs_sisa">Rp 0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION D: KETENTUAN ═══ -->
+    <div class="form-section" id="sectionD">
+      <div class="section-header">
+        <div class="section-badge">D</div>
+        <div class="section-title">Ketentuan Kontrak</div>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="terms-actions">
+        <button class="btn btn-secondary btn-sm" onclick="resetTerms()">🔄 Reset Template</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Isi Ketentuan / Pasal-Pasal <small class="optional">(dapat diedit)</small></label>
+        <textarea class="form-input form-textarea terms-textarea" id="d_ketentuan"></textarea>
+      </div>
+
+      <div class="form-grid form-grid-2 mt-12">
+        <div class="form-group">
+          <label class="form-label">Tanggal Pembuatan SPK <span class="required">*</span></label>
+          <input type="date" class="form-input" id="d_tglPembuatan">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Batas Waktu Tanda Tangan <span class="required">*</span></label>
+          <input type="date" class="form-input" id="d_batasTtd">
+          <div class="form-hint">Default: 7 hari dari hari ini</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kota Pembuatan</label>
+          <input type="text" class="form-input" id="d_kotaPembuatan" placeholder="Tegal">
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ GENERATE SECTION ═══ -->
+    <div class="generate-section">
+      <h3>Siap membuat dokumen?</h3>
+      <div class="generate-btns-main">
+        <button class="btn btn-primary btn-xl" onclick="generateDoc('spk')">
+          📄 Generate SPK & Kontrak
+        </button>
+        <button class="btn btn-ghost btn-xl" onclick="generateDoc('invoice')">
+          💳 Generate Invoice
+        </button>
+      </div>
+      <button class="btn btn-secondary btn-lg generate-btn-all" onclick="generateDoc('all')">
+        📦 Generate Keduanya (SPK + Invoice)
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ═══ PREVIEW AREA ═══ -->
+  <div class="preview-area scroll-anchor" id="previewArea" style="max-width:760px; margin: 0 auto 40px;">
+    <div class="preview-header">
+      <div class="preview-title">👁 Preview Dokumen</div>
+      <div class="preview-actions">
+        <button class="btn btn-sm btn-primary" id="btnPrintSpk" onclick="printDocument('spk')" style="display:none">🖨️
+          Cetak SPK</button>
+        <button class="btn btn-sm btn-ghost" id="btnPrintInv" onclick="printDocument('invoice')"
+          style="display:none">🖨️ Cetak Invoice</button>
+        <button class="btn btn-sm btn-secondary" id="btnPrintAll" onclick="printDocument('all')" style="display:none">📦
+          Cetak Semua</button>
+        <button class="btn btn-sm btn-wa" id="btnWa" onclick="kirimWa()" style="display:none">📱 WA Klien</button>
+        <button class="btn btn-sm btn-danger" onclick="closePreview()">✕ Tutup</button>
+      </div>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+  <script>
+    // ─────────────────────────────────────────────────────────
+    // CONSTANTS & STATE
+    // ─────────────────────────────────────────────────────────
+    const DEFAULT_TERMS = `1. PEMBAYARAN
+   a. Uang muka/DP sebesar [DP_AMOUNT] dibayarkan paling lambat [TANGGAL_DEADLINE_DP] untuk mengkonfirmasi pemesanan.
+   b. Pelunasan sebesar [SISA_BAYAR] dibayarkan paling lambat H-7 sebelum tanggal acara.
+   c. Pembayaran dapat dilakukan via transfer bank ke rekening yang tertera di invoice.
+
+2. PEMBATALAN & PENGEMBALIAN DANA
+   a. Pembatalan oleh klien lebih dari 60 hari sebelum acara: uang muka dikembalikan 50%.
+   b. Pembatalan 31–60 hari sebelum acara: uang muka tidak dapat dikembalikan.
+   c. Pembatalan kurang dari 30 hari sebelum acara: uang muka tidak dikembalikan dan klien wajib membayar 50% dari sisa tagihan.
+   d. Pembatalan dari pihak vendor karena force majeure: uang muka dikembalikan penuh.
+
+3. HAK CIPTA & PENGGUNAAN KARYA
+   a. Seluruh foto dan video yang dihasilkan adalah karya milik [NAMA_VENDOR].
+   b. Vendor berhak menggunakan hasil dokumentasi untuk keperluan portofolio dan promosi.
+   c. Klien mendapatkan lisensi penggunaan pribadi (non-komersial) atas karya tersebut.
+
+4. PENYERAHAN HASIL
+   a. Hasil foto dan video akan diserahkan sesuai tenggat waktu yang tercantum dalam paket.
+   b. Penyerahan dilakukan setelah pelunasan pembayaran diterima.
+   c. Revisi ringan (warna/tone) dapat diajukan maksimal 1 kali dalam 7 hari setelah penyerahan.
+
+5. TANGGUNG JAWAB VENDOR
+   a. Vendor akan hadir tepat waktu sesuai jadwal yang disepakati.
+   b. Vendor membawa peralatan cadangan untuk antisipasi kerusakan teknis.
+   c. Vendor tidak bertanggung jawab atas kejadian di luar kendali (bencana alam, listrik padam, dll).
+
+6. KETENTUAN TAMBAHAN
+   a. Klien wajib menyediakan konsumsi untuk tim vendor selama acara berlangsung.
+   b. Klien bertanggung jawab memperkenalkan vendor kepada pihak keluarga/panitia yang relevan.
+   c. Surat perjanjian ini berlaku mengikat secara hukum setelah ditandatangani kedua pihak.`;
+
+    const PACKAGES = {
+      silver: {
+        name: 'Paket Silver',
+        items: [
+          { deskripsi: 'Dokumentasi Foto 6 Jam', qty: 1, satuan: 'paket', harga: 3500000 },
+          { deskripsi: 'Fotografer', qty: 1, satuan: 'orang', harga: 0 },
+          { deskripsi: '200 Foto Edit Soft Copy', qty: 200, satuan: 'foto', harga: 0 },
+          { deskripsi: 'Pengiriman via Google Drive (14 hari)', qty: 1, satuan: 'paket', harga: 0 },
+        ]
+      },
+      gold: {
+        name: 'Paket Gold',
+        items: [
+          { deskripsi: 'Dokumentasi Foto + Video 8 Jam', qty: 1, satuan: 'paket', harga: 6500000 },
+          { deskripsi: 'Fotografer + Videografer', qty: 1, satuan: 'paket', harga: 0 },
+          { deskripsi: '300 Foto Edit + Highlight Video 5 Menit', qty: 1, satuan: 'paket', harga: 0 },
+          { deskripsi: 'Foto Cetak 4R', qty: 20, satuan: 'lembar', harga: 0 },
+          { deskripsi: 'Pengiriman via Google Drive (21 hari)', qty: 1, satuan: 'paket', harga: 0 },
+        ]
+      },
+      platinum: {
+        name: 'Paket Platinum',
+        items: [
+          { deskripsi: 'Dokumentasi Foto + Video + Drone 10 Jam', qty: 1, satuan: 'paket', harga: 12000000 },
+          { deskripsi: '2 Fotografer + 1 Videografer', qty: 1, satuan: 'paket', harga: 0 },
+          { deskripsi: '500 Foto Edit + Cinematic Video 10 Menit', qty: 1, satuan: 'paket', harga: 0 },
+          { deskripsi: 'Same-Day Edit (SDE) 3 Menit', qty: 1, satuan: 'video', harga: 0 },
+          { deskripsi: 'Foto Cetak 4R', qty: 40, satuan: 'lembar', harga: 0 },
+          { deskripsi: 'Photobook A4 (20 halaman)', qty: 1, satuan: 'buku', harga: 0 },
+          { deskripsi: 'Pengiriman via Google Drive (30 hari)', qty: 1, satuan: 'paket', harga: 0 },
+        ]
+      }
+    };
+
+    let currentMode = 'paket';
+    let currentGenMode = null;
+    let logoBase64 = null;
+    let rowCounter = 0;
+
+    // ─────────────────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────────────────
+    window.onload = function () {
+      // Set default dates
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      document.getElementById('d_tglPembuatan').value = todayStr;
+
+      const deadline = new Date();
+      deadline.setDate(deadline.getDate() + 7);
+      document.getElementById('d_batasTtd').value = deadline.toISOString().split('T')[0];
+
+      // Set default terms
+      document.getElementById('d_ketentuan').value = DEFAULT_TERMS;
+
+      // Load vendor profile
+      loadVendorProfile();
+
+      // Add initial empty row if no items
+      if (document.getElementById('itemsTbody').children.length === 0) {
+        addItemRow();
+      }
+
+      recalc();
+    };
+
+    // ─────────────────────────────────────────────────────────
+    // VENDOR PROFILE
+    // ─────────────────────────────────────────────────────────
+    function loadVendorProfile() {
+      const saved = localStorage.getItem('weddoc_vendor');
+      if (!saved) return;
+
+      try {
+        const v = JSON.parse(saved);
+        document.getElementById('v_namaStudio').value = v.namaStudio || '';
+        document.getElementById('v_namaPemilik').value = v.namaPemilik || '';
+        document.getElementById('v_noWa').value = v.noWa || '';
+        document.getElementById('v_email').value = v.email || '';
+        document.getElementById('v_alamat').value = v.alamat || '';
+        document.getElementById('v_rekening').value = v.rekening || '';
+        document.getElementById('v_tagline').value = v.tagline || '';
+        document.getElementById('d_kotaPembuatan').value = v.alamat ? v.alamat.split(',')[0].trim() : '';
+
+        if (v.logoBase64) {
+          logoBase64 = v.logoBase64;
+          document.getElementById('logoPreview').src = v.logoBase64;
+          document.getElementById('logoPreview').classList.add('show');
+          document.getElementById('logoIcon').style.display = 'none';
+          document.getElementById('logoText').textContent = 'Logo tersimpan';
+          document.getElementById('btnClearLogo').style.display = 'inline-flex';
+        }
+
+        // Show saved badge, collapse form
+        document.getElementById('vendorSavedBadge').classList.remove('hidden');
+        document.getElementById('vendorSavedBadge').querySelector('.badge-text').textContent =
+          '✅ Menggunakan profil: ' + (v.namaStudio || 'Studio Anda');
+        document.getElementById('vendorFormCollapse').classList.remove('show');
+      } catch (e) { }
+    }
+
+    function saveVendorProfile() {
+      const namaStudio = document.getElementById('v_namaStudio').value.trim();
+      const namaPemilik = document.getElementById('v_namaPemilik').value.trim();
+      const noWa = document.getElementById('v_noWa').value.trim();
+      const alamat = document.getElementById('v_alamat').value.trim();
+
+      if (!namaStudio) { showError('v_namaStudio'); return; }
+      if (!namaPemilik) { showError('v_namaPemilik'); return; }
+      if (!noWa) { showError('v_noWa'); return; }
+      if (!alamat) { showError('v_alamat'); return; }
+
+      const v = {
+        namaStudio,
+        namaPemilik,
+        noWa,
+        email: document.getElementById('v_email').value.trim(),
+        alamat,
+        rekening: document.getElementById('v_rekening').value.trim(),
+        tagline: document.getElementById('v_tagline').value.trim(),
+        logoBase64: logoBase64 || null
+      };
+
+      localStorage.setItem('weddoc_vendor', JSON.stringify(v));
+
+      // Auto-fill kota
+      if (alamat && !document.getElementById('d_kotaPembuatan').value) {
+        document.getElementById('d_kotaPembuatan').value = alamat.split(',')[0].trim();
+      }
+
+      document.getElementById('vendorSavedBadge').classList.remove('hidden');
+      document.getElementById('vendorSavedBadge').querySelector('.badge-text').textContent =
+        '✅ Menggunakan profil: ' + namaStudio;
+      document.getElementById('vendorFormCollapse').classList.remove('show');
+
+      showToast('✅ Profil vendor tersimpan!');
+    }
+
+    function toggleVendorForm() {
+      const form = document.getElementById('vendorFormCollapse');
+      form.classList.toggle('show');
+      const btn = document.getElementById('vendorSavedBadge').querySelector('.badge-edit');
+      btn.textContent = form.classList.contains('show') ? 'Tutup ↑' : 'Edit Profil ↓';
+    }
+
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('❌ File terlalu besar (maks. 2MB)', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        logoBase64 = e.target.result;
+        document.getElementById('logoPreview').src = logoBase64;
+        document.getElementById('logoPreview').classList.add('show');
+        document.getElementById('logoIcon').style.display = 'none';
+        document.getElementById('logoText').textContent = file.name;
+        document.getElementById('btnClearLogo').style.display = 'inline-flex';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearLogo() {
+      logoBase64 = null;
+      document.getElementById('logoPreview').src = '';
+      document.getElementById('logoPreview').classList.remove('show');
+      document.getElementById('logoIcon').style.display = 'block';
+      document.getElementById('logoText').innerHTML = 'Klik atau seret file logo ke sini<br><small>JPG / PNG · Maks. 2MB</small>';
+      document.getElementById('btnClearLogo').style.display = 'none';
+      document.getElementById('v_logoFile').value = '';
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // DOCUMENT NUMBER
+    // ─────────────────────────────────────────────────────────
+    function generateNomor(namaPria, namaWanita, tglAkad, tipe) {
+      const kode = ((namaPria || '').slice(0, 3) + (namaWanita || '').slice(0, 3)).toUpperCase().replace(/\s/g, '') || 'XXXYYY';
+      const tahun = tglAkad ? new Date(tglAkad).getFullYear() : new Date().getFullYear();
+      return `${tipe}-${kode}-${tahun}`;
+    }
+
+    function updateDocNumber() {
+      const pria = document.getElementById('k_namaPria').value;
+      const wanita = document.getElementById('k_namaWanita').value;
+      const tgl = document.getElementById('a_tglAkad').value;
+      const spkNo = generateNomor(pria, wanita, tgl, 'SPK');
+      const invNo = generateNomor(pria, wanita, tgl, 'INV');
+      document.getElementById('docNumPreview').textContent = spkNo + ' / ' + invNo;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // PACKAGE SELECTION
+    // ─────────────────────────────────────────────────────────
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnModePaket').classList.toggle('active', mode === 'paket');
+      document.getElementById('btnModeManual').classList.toggle('active', mode === 'manual');
+      document.getElementById('modePaket').classList.toggle('active', mode === 'paket');
+      document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
+    }
+
+    function selectPackage(pkgKey) {
+      // Deselect all
+      ['pkgSilver', 'pkgGold', 'pkgPlatinum'].forEach(id => {
+        document.getElementById(id).classList.remove('selected');
+      });
+      const pkgMap = { silver: 'pkgSilver', gold: 'pkgGold', platinum: 'pkgPlatinum' };
+      document.getElementById(pkgMap[pkgKey]).classList.add('selected');
+
+      // Populate items
+      const pkg = PACKAGES[pkgKey];
+      const tbody = document.getElementById('itemsTbody');
+      tbody.innerHTML = '';
+      rowCounter = 0;
+      pkg.items.forEach(item => addItemRow(item));
+      recalc();
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // ITEMS TABLE
+    // ─────────────────────────────────────────────────────────
+    function addItemRow(data) {
+      rowCounter++;
+      const tbody = document.getElementById('itemsTbody');
+      const tr = document.createElement('tr');
+      tr.id = 'row_' + rowCounter;
+
+      const d = data || { deskripsi: '', qty: 1, satuan: 'paket', harga: 0 };
+      const harga = d.harga || 0;
+      const qty = d.qty || 1;
+      const sub = harga * qty;
+
+      tr.innerHTML = `
+    <td class="td-no">${tbody.children.length + 1}</td>
+    <td class="td-desc"><input type="text" placeholder="Deskripsi layanan" value="${esc(d.deskripsi)}" oninput="renumberRows()"></td>
+    <td class="td-qty"><input type="number" class="num-input" value="${qty}" min="1" oninput="calcRow(this); recalc()"></td>
+    <td class="td-unit"><input type="text" value="${esc(d.satuan || 'paket')}"></td>
+    <td class="td-price"><input type="number" class="num-input" value="${harga}" min="0" oninput="calcRow(this); recalc()"></td>
+    <td class="td-subtotal" id="sub_${rowCounter}">${fmt(sub)}</td>
+    <td class="td-action"><button class="btn-remove-row" onclick="removeRow('${rowCounter}')" title="Hapus">✕</button></td>
+  `;
+      tbody.appendChild(tr);
+      renumberRows();
+    }
+
+    function calcRow(input) {
+      const tr = input.closest('tr');
+      const qty = parseFloat(tr.querySelector('.td-qty input').value) || 0;
+      const harga = parseFloat(tr.querySelector('.td-price input').value) || 0;
+      const sub = qty * harga;
+      const subCell = tr.querySelector('.td-subtotal');
+      if (subCell) subCell.textContent = fmt(sub);
+    }
+
+    function removeRow(id) {
+      const el = document.getElementById('row_' + id);
+      if (el) el.remove();
+      renumberRows();
+      recalc();
+    }
+
+    function renumberRows() {
+      const rows = document.getElementById('itemsTbody').querySelectorAll('tr');
+      rows.forEach((tr, i) => {
+        const noCell = tr.querySelector('.td-no');
+        if (noCell) noCell.textContent = i + 1;
+      });
+    }
+
+    function getItems() {
+      const rows = document.getElementById('itemsTbody').querySelectorAll('tr');
+      const items = [];
+      rows.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        const deskripsi = inputs[0]?.value?.trim() || '';
+        const qty = parseFloat(inputs[1]?.value) || 1;
+        const satuan = inputs[2]?.value?.trim() || '';
+        const harga = parseFloat(inputs[3]?.value) || 0;
+        items.push({ deskripsi, qty, satuan, harga });
+      });
+      return items;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // FINANCE CALCULATION
+    // ─────────────────────────────────────────────────────────
+    function recalc() {
+      const items = getItems();
+      const discVal = parseFloat(document.getElementById('disc_val').value) || 0;
+      const discType = document.getElementById('disc_type').value;
+      const dp = parseFloat(document.getElementById('dp_val').value) || 0;
+
+      const calc = hitungTotal(items, { tipe: discType, nilai: discVal }, dp);
+
+      document.getElementById('fs_subtotal').textContent = fmt(calc.subtotal);
+      document.getElementById('fs_diskon').textContent = '- ' + fmt(calc.totalDiskon);
+      document.getElementById('fs_totalDiskon').textContent = fmt(calc.totalSetelahDiskon);
+      document.getElementById('fs_dp').textContent = fmt(dp);
+      document.getElementById('fs_sisa').textContent = fmt(Math.max(0, calc.sisaBayar));
+    }
+
+    function hitungTotal(items, diskon, dp) {
+      const subtotal = items.reduce((sum, it) => sum + (it.qty * it.harga), 0);
+      let totalDiskon = 0;
+      if (diskon.tipe === 'persen') {
+        totalDiskon = subtotal * (diskon.nilai / 100);
+      } else {
+        totalDiskon = diskon.nilai || 0;
+      }
+      const totalSetelahDiskon = subtotal - totalDiskon;
+      const sisaBayar = totalSetelahDiskon - dp;
+      return { subtotal, totalDiskon, totalSetelahDiskon, dp, sisaBayar };
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // TERMS
+    // ─────────────────────────────────────────────────────────
+    function resetTerms() {
+      document.getElementById('d_ketentuan').value = DEFAULT_TERMS;
+      showToast('✅ Template ketentuan direset');
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // VALIDATION
+    // ─────────────────────────────────────────────────────────
+    function validateForm() {
+      const required = [
+        { id: 'v_namaStudio', errId: 'err_v_namaStudio' },
+        { id: 'v_namaPemilik', errId: 'err_v_namaPemilik' },
+        { id: 'v_noWa', errId: 'err_v_noWa' },
+        { id: 'v_alamat', errId: 'err_v_alamat' },
+        { id: 'k_namaPria', errId: 'err_k_namaPria' },
+        { id: 'k_namaWanita', errId: 'err_k_namaWanita' },
+        { id: 'k_noWa', errId: 'err_k_noWa' },
+        { id: 'a_tglAkad', errId: 'err_a_tglAkad' },
+        { id: 'a_jamAkad', errId: 'err_a_jamAkad' },
+        { id: 'a_lokasiAkad', errId: 'err_a_lokasiAkad' },
+      ];
+
+      let firstError = null;
+      let valid = true;
+
+      required.forEach(({ id, errId }) => {
+        const el = document.getElementById(id);
+        const err = document.getElementById(errId);
+        if (!el.value.trim()) {
+          el.classList.add('error');
+          if (err) err.classList.add('show');
+          if (!firstError) firstError = el;
+          valid = false;
+        } else {
+          el.classList.remove('error');
+          if (err) err.classList.remove('show');
+        }
+      });
+
+      if (!valid && firstError) {
+        // Open vendor form if vendor fields are empty
+        if (['v_namaStudio', 'v_namaPemilik', 'v_noWa', 'v_alamat'].some(id => {
+          const el = document.getElementById(id);
+          return !el.value.trim();
+        })) {
+          document.getElementById('vendorFormCollapse').classList.add('show');
+        }
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('❌ Harap lengkapi semua field yang wajib diisi', 'error');
+      }
+
+      return valid;
+    }
+
+    function showError(id) {
+      const el = document.getElementById(id);
+      el.classList.add('error');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => el.classList.remove('error'), 2000);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // GENERATE DOCUMENT
+    // ─────────────────────────────────────────────────────────
+    function generateDoc(mode) {
+      if (!validateForm()) return;
+
+      currentGenMode = mode;
+
+      // Collect all data
+      const vendor = getVendorData();
+      const klien = getKlienData();
+      const acara = getAcaraData();
+      const keuangan = getKeuanganData();
+      const meta = getMetaData();
+
+      const data = { vendor, klien, acara, keuangan, meta };
+
+      // Replace placeholders in terms
+      const termsRaw = document.getElementById('d_ketentuan').value;
+      const terms = isiKetentuan(termsRaw, data);
+
+      // Render documents
+      const previewBody = document.getElementById('previewBody');
+      previewBody.innerHTML = '';
+
+      let html = '';
+
+      if (mode === 'spk' || mode === 'all') {
+        html += renderSPK(data, terms);
+      }
+      if (mode === 'invoice' || mode === 'all') {
+        html += renderInvoice(data);
+      }
+
+      previewBody.innerHTML = html;
+
+      // Show preview
+      const previewArea = document.getElementById('previewArea');
+      previewArea.classList.add('show');
+
+      // Show/hide print buttons
+      document.getElementById('btnPrintSpk').style.display = (mode === 'spk' || mode === 'all') ? 'inline-flex' : 'none';
+      document.getElementById('btnPrintInv').style.display = (mode === 'invoice' || mode === 'all') ? 'inline-flex' : 'none';
+      document.getElementById('btnPrintAll').style.display = mode === 'all' ? 'inline-flex' : 'none';
+      document.getElementById('btnWa').style.display = 'inline-flex';
+
+      // Scroll to preview
+      previewArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Save to history
+      saveToHistory(data, mode);
+
+      showToast('✅ Dokumen berhasil di-generate!');
+    }
+
+    function getVendorData() {
+      // Try localStorage first, then form
+      const saved = localStorage.getItem('weddoc_vendor');
+      let v = {};
+      if (saved) { try { v = JSON.parse(saved); } catch (e) { } }
+
+      // Override with current form values
+      return {
+        namaStudio: document.getElementById('v_namaStudio').value.trim() || v.namaStudio || '',
+        namaPemilik: document.getElementById('v_namaPemilik').value.trim() || v.namaPemilik || '',
+        noWa: document.getElementById('v_noWa').value.trim() || v.noWa || '',
+        email: document.getElementById('v_email').value.trim() || v.email || '',
+        alamat: document.getElementById('v_alamat').value.trim() || v.alamat || '',
+        rekening: document.getElementById('v_rekening').value.trim() || v.rekening || '',
+        tagline: document.getElementById('v_tagline').value.trim() || v.tagline || '',
+        logoBase64: logoBase64 || v.logoBase64 || null
+      };
+    }
+
+    function getKlienData() {
+      return {
+        pria: document.getElementById('k_namaPria').value.trim(),
+        wanita: document.getElementById('k_namaWanita').value.trim(),
+        panggilanPria: document.getElementById('k_panggilanPria').value.trim(),
+        panggilanWanita: document.getElementById('k_panggilanWanita').value.trim(),
+        noWa: document.getElementById('k_noWa').value.trim(),
+        email: document.getElementById('k_email').value.trim()
+      };
+    }
+
+    function getAcaraData() {
+      const tglAkad = document.getElementById('a_tglAkad').value;
+      const tglResepsi = document.getElementById('a_tglResepsi').value || tglAkad;
+      return {
+        tglAkad,
+        jamAkad: document.getElementById('a_jamAkad').value,
+        tglResepsi,
+        jamResepsi: document.getElementById('a_jamResepsi').value,
+        lokasiAkad: document.getElementById('a_lokasiAkad').value.trim(),
+        lokasiResepsi: document.getElementById('a_lokasiResepsi').value.trim(),
+        estimasiTamu: document.getElementById('a_estimasiTamu').value
+      };
+    }
+
+    function getKeuanganData() {
+      const items = getItems();
+      const discVal = parseFloat(document.getElementById('disc_val').value) || 0;
+      const discType = document.getElementById('disc_type').value;
+      const dp = parseFloat(document.getElementById('dp_val').value) || 0;
+      const catatan = document.getElementById('fin_catatan').value.trim();
+      const calc = hitungTotal(items, { tipe: discType, nilai: discVal }, dp);
+      return { items, diskon: { tipe: discType, nilai: discVal }, dp, catatan, ...calc };
+    }
+
+    function getMetaData() {
+      const tglPembuatan = document.getElementById('d_tglPembuatan').value;
+      const batasTtd = document.getElementById('d_batasTtd').value;
+      const klien = getKlienData();
+      const tglAkad = document.getElementById('a_tglAkad').value;
+      return {
+        tglPembuatan,
+        batasTtd,
+        kotaPembuatan: document.getElementById('d_kotaPembuatan').value.trim(),
+        nomorSPK: generateNomor(klien.pria, klien.wanita, tglAkad, 'SPK'),
+        nomorInvoice: generateNomor(klien.pria, klien.wanita, tglAkad, 'INV')
+      };
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // RENDER SPK
+    // ─────────────────────────────────────────────────────────
+    function renderSPK(data, terms) {
+      const { vendor, klien, acara, keuangan, meta } = data;
+      const lokasiResepsi = acara.lokasiResepsi || acara.lokasiAkad;
+      const tglResepsiSama = acara.tglResepsi === acara.tglAkad;
+
+      // Jatuh tempo pelunasan: H-7 sebelum akad
+      const jatuhTempo = new Date(acara.tglAkad);
+      jatuhTempo.setDate(jatuhTempo.getDate() - 7);
+
+      // Build items rows
+      let itemsHtml = keuangan.items.map((item, i) => `
+    <tr>
+      <td class="td-no">${i + 1}</td>
+      <td>${esc(item.deskripsi)}</td>
+      <td>${item.qty} ${esc(item.satuan)}</td>
+    </tr>
+  `).join('');
+
+      // Finance
+      const discLabel = keuangan.diskon.tipe === 'persen'
+        ? `Diskon (${keuangan.diskon.nilai}%)`
+        : 'Diskon';
+
+      // Logo
+      const logoHtml = vendor.logoBase64
+        ? `<img class="spk-logo-img" src="${vendor.logoBase64}" alt="Logo">`
+        : `<div class="spk-logo-placeholder">✦</div>`;
+
+      return `
+  <div class="doc-wrap">
+  <div class="doc-spk doc-page">
+    <div class="doc-spk-page">
+      <div class="doc-watermark">DOKUMEN</div>
+
+      <!-- HEADER -->
+      <div class="spk-header">
+        <div class="spk-header-left">
+          ${logoHtml}
+          <div>
+            <div class="spk-studio-name">${esc(vendor.namaStudio)}</div>
+            ${vendor.tagline ? `<div class="spk-studio-tagline">${esc(vendor.tagline)}</div>` : ''}
+            <div class="spk-studio-contact">${esc(vendor.alamat)} · WA: ${esc(vendor.noWa)}${vendor.email ? ' · ' + esc(vendor.email) : ''}</div>
+          </div>
+        </div>
+        <div class="spk-header-right">
+          <div class="spk-doc-type">Surat Perjanjian<br>Kerja</div>
+          <div class="spk-doc-meta">
+            <strong>No. SPK:</strong> ${esc(meta.nomorSPK)}<br>
+            <strong>Tanggal:</strong> ${fmtTanggalPendek(meta.tglPembuatan)}<br>
+            <strong>Berlaku s/d:</strong> ${fmtTanggalPendek(meta.batasTtd)}
+          </div>
+        </div>
+      </div>
+
+      <!-- PIHAK-PIHAK -->
+      <div class="spk-section">
+        <div class="spk-section-title">Pihak-Pihak yang Bersepakat</div>
+        <div class="spk-parties">
+          <div class="spk-party-box">
+            <div class="spk-party-box-header">PIHAK PERTAMA</div>
+            <div class="spk-party-name">${esc(vendor.namaStudio)}</div>
+            <div class="spk-party-detail">
+              Diwakili oleh: <strong>${esc(vendor.namaPemilik)}</strong><br>
+              WA: ${esc(vendor.noWa)}<br>
+              ${vendor.email ? 'Email: ' + esc(vendor.email) + '<br>' : ''}
+              ${esc(vendor.alamat)}
+            </div>
+            <div class="spk-party-label">VENDOR / PENYEDIA JASA</div>
+          </div>
+          <div class="spk-party-box">
+            <div class="spk-party-box-header">PIHAK KEDUA</div>
+            <div class="spk-party-name">${esc(klien.pria)}<br>&amp; ${esc(klien.wanita)}</div>
+            <div class="spk-party-detail">
+              Kontak: ${esc(klien.noWa)}<br>
+              ${klien.email ? 'Email: ' + esc(klien.email) : ''}
+            </div>
+            <div class="spk-party-label">KLIEN</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAIL ACARA -->
+      <div class="spk-section">
+        <div class="spk-section-title">Detail Acara</div>
+        <div class="spk-event-box">
+          <div class="spk-event-grid">
+            <div class="spk-event-item">
+              <div class="spk-event-label">Tanggal Akad</div>
+              <div class="spk-event-value">${fmtTanggal(acara.tglAkad)} · Pukul ${acara.jamAkad} WIB</div>
+            </div>
+            <div class="spk-event-item">
+              <div class="spk-event-label">Tanggal Resepsi</div>
+              <div class="spk-event-value">${tglResepsiSama ? fmtTanggal(acara.tglAkad) : fmtTanggal(acara.tglResepsi)} · Pukul ${acara.jamResepsi} WIB</div>
+            </div>
+            <div class="spk-event-item">
+              <div class="spk-event-label">Lokasi Akad</div>
+              <div class="spk-event-value">${esc(acara.lokasiAkad)}</div>
+            </div>
+            <div class="spk-event-item">
+              <div class="spk-event-label">Lokasi Resepsi</div>
+              <div class="spk-event-value">${esc(lokasiResepsi)}${tglResepsiSama && !acara.lokasiResepsi ? ' (sama dengan akad)' : ''}</div>
+            </div>
+            ${acara.estimasiTamu ? `
+            <div class="spk-event-item">
+              <div class="spk-event-label">Estimasi Tamu</div>
+              <div class="spk-event-value">± ${acara.estimasiTamu} orang</div>
+            </div>` : ''}
+            <div class="spk-event-item">
+              <div class="spk-event-label">No. Dokumen</div>
+              <div class="spk-event-value" style="font-family:'JetBrains Mono',monospace;font-size:8pt">${esc(meta.nomorSPK)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RUANG LINGKUP PEKERJAAN -->
+      <div class="spk-section">
+        <div class="spk-section-title">Ruang Lingkup Pekerjaan</div>
+        <table class="spk-table">
+          <thead>
+            <tr>
+              <th class="td-no">No</th>
+              <th>Deskripsi Layanan</th>
+              <th style="width:80pt">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+      </div>
+
+      <!-- RINCIAN KEUANGAN -->
+      <div class="spk-section">
+        <div class="spk-section-title">Rincian Keuangan</div>
+        <div class="spk-finance-box">
+          <table class="spk-finance-table">
+            <tr>
+              <td class="f-label">Subtotal</td>
+              <td class="f-val">${fmt(keuangan.subtotal)}</td>
+            </tr>
+            ${keuangan.totalDiskon > 0 ? `
+            <tr>
+              <td class="f-label">${discLabel}</td>
+              <td class="f-val" style="color:#B8860B">- ${fmt(keuangan.totalDiskon)}</td>
+            </tr>` : ''}
+            <tr class="f-divider">
+              <td class="f-label" style="font-weight:700">Total Setelah Diskon</td>
+              <td class="f-val" style="font-weight:700">${fmt(keuangan.totalSetelahDiskon)}</td>
+            </tr>
+            ${keuangan.dp > 0 ? `
+            <tr>
+              <td class="f-label">Uang Muka / DP (sudah dibayar)</td>
+              <td class="f-val">- ${fmt(keuangan.dp)}</td>
+            </tr>` : ''}
+            <tr class="f-double-divider f-sisa">
+              <td>SISA PEMBAYARAN</td>
+              <td class="f-val">${fmt(Math.max(0, keuangan.sisaBayar))}</td>
+            </tr>
+          </table>
+          ${vendor.rekening ? `
+          <div class="spk-rekening-box">
+            <strong>Transfer Pembayaran ke:</strong><br>
+            ${esc(vendor.rekening)}<br>
+            <em style="font-size:7.5pt;color:#A8A29E">Jatuh tempo pelunasan: H-7 sebelum acara (${fmtTanggalPendek(jatuhTempo.toISOString().split('T')[0])})</em>
+          </div>` : ''}
+          ${keuangan.catatan ? `<div class="spk-rekening-box" style="margin-top:6pt;background:#F0FDF4;"><em>${esc(keuangan.catatan)}</em></div>` : ''}
+        </div>
+      </div>
+
+      <!-- KETENTUAN -->
+      <div class="spk-section">
+        <div class="spk-section-title">Ketentuan & Pasal-Pasal</div>
+        <div class="spk-terms-content">${esc(terms)}</div>
+      </div>
+
+      <!-- TANDA TANGAN -->
+      <div class="spk-signature-section">
+        <div style="font-size:8pt;color:#57534E;margin-bottom:12pt;text-align:center">
+          Demikian Surat Perjanjian Kerja ini dibuat di <strong>${esc(meta.kotaPembuatan || vendor.alamat)}</strong> pada tanggal <strong>${fmtTanggalPendek(meta.tglPembuatan)}</strong>, dalam keadaan sadar dan tanpa paksaan dari pihak manapun.
+        </div>
+        <div class="spk-sig-grid">
+          <div class="spk-sig-box">
+            <div class="spk-sig-role">Pihak Pertama / Vendor</div>
+            <div class="spk-sig-space"></div>
+            <div class="spk-sig-name">(${esc(vendor.namaPemilik)})</div>
+            <div class="spk-sig-title">${esc(vendor.namaStudio)}</div>
+          </div>
+          <div class="spk-sig-box">
+            <div class="spk-sig-role">Pihak Kedua / Klien</div>
+            <div class="spk-sig-space"></div>
+            <div class="spk-sig-name">(${esc(klien.pria)} / ${esc(klien.wanita)})</div>
+            <div class="spk-sig-title">Klien</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="spk-footer">
+        <span>${esc(vendor.namaStudio)}</span>
+        <span>·</span>
+        <span>${esc(vendor.alamat)}</span>
+        <span>·</span>
+        <span>WA ${esc(vendor.noWa)}</span>
+        <span>·</span>
+        <span>Dibuat dengan WedDocYhz</span>
+      </div>
+
+    </div>
+  </div>
+  </div>
+  `;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // RENDER INVOICE
+    // ─────────────────────────────────────────────────────────
+    function renderInvoice(data) {
+      const { vendor, klien, acara, keuangan, meta } = data;
+      const lokasiResepsi = acara.lokasiResepsi || acara.lokasiAkad;
+
+      const statusObj = getStatusPembayaran(keuangan.dp, keuangan.totalSetelahDiskon);
+
+      // Items table
+      let itemsHtml = keuangan.items.map((item, i) => {
+        const sub = item.qty * item.harga;
+        return `
+    <tr>
+      <td class="td-no">${i + 1}</td>
+      <td>${esc(item.deskripsi)}</td>
+      <td style="text-align:center">${item.qty} ${esc(item.satuan)}</td>
+      <td class="td-price" style="text-align:right">${item.harga > 0 ? fmt(item.harga) : '—'}</td>
+      <td class="td-sub" style="text-align:right">${sub > 0 ? fmt(sub) : '—'}</td>
+    </tr>`;
+      }).join('');
+
+      const discLabel = keuangan.diskon.tipe === 'persen'
+        ? `Diskon (${keuangan.diskon.nilai}%)`
+        : 'Diskon';
+
+      // Logo
+      const logoHtml = vendor.logoBase64
+        ? `<img class="inv-logo-img" src="${vendor.logoBase64}" alt="Logo">`
+        : `<div class="inv-logo-placeholder">✦</div>`;
+
+      // Jatuh tempo: H-7
+      const jatuhTempo = new Date(acara.tglAkad);
+      jatuhTempo.setDate(jatuhTempo.getDate() - 7);
+
+      return `
+  <div class="doc-wrap" style="padding-top:${currentGenMode === 'all' ? '20px' : '20px'}">
+  <div class="doc-invoice doc-page" style="position:relative">
+    <div class="doc-invoice-page">
+
+      <!-- HEADER STRIP -->
+      <div class="inv-header">
+        <div class="inv-header-left">
+          ${logoHtml}
+          <div>
+            <div class="inv-studio-name">${esc(vendor.namaStudio)}</div>
+            ${vendor.tagline ? `<div class="inv-studio-tagline">${esc(vendor.tagline)}</div>` : ''}
+          </div>
+        </div>
+        <div class="inv-header-right">
+          <div class="inv-type">Invoice</div>
+          <div class="inv-meta">
+            No: ${esc(meta.nomorInvoice)}<br>
+            Tanggal: ${fmtTanggalPendek(meta.tglPembuatan)}<br>
+            Jatuh Tempo: ${fmtTanggalPendek(jatuhTempo.toISOString().split('T')[0])}
+          </div>
+        </div>
+      </div>
+
+      <div class="inv-body">
+
+        <!-- FROM / TO -->
+        <div class="inv-parties">
+          <div>
+            <div class="inv-party-label">DARI</div>
+            <div class="inv-party-name">${esc(vendor.namaStudio)}</div>
+            <div class="inv-party-detail">
+              ${esc(vendor.alamat)}<br>
+              WA: ${esc(vendor.noWa)}<br>
+              ${vendor.email ? esc(vendor.email) : ''}
+            </div>
+          </div>
+          <div>
+            <div class="inv-party-label">KEPADA</div>
+            <div class="inv-party-name">${esc(klien.pria)} &amp; ${esc(klien.wanita)}</div>
+            <div class="inv-party-detail">
+              WA: ${esc(klien.noWa)}<br>
+              ${klien.email ? esc(klien.email) : ''}
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-divider"></div>
+
+        <!-- EVENT BAR -->
+        <div class="inv-event-bar">
+          <div class="inv-event-chip">📅 <strong>Akad:</strong> ${fmtTanggalPendek(acara.tglAkad)}, Pkl ${acara.jamAkad}</div>
+          <div class="inv-event-chip">🎊 <strong>Resepsi:</strong> ${fmtTanggalPendek(acara.tglResepsi)}, Pkl ${acara.jamResepsi}</div>
+          <div class="inv-event-chip">📍 ${esc(acara.lokasiAkad)}</div>
+        </div>
+
+        <!-- TABLE -->
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th class="td-no">No.</th>
+              <th>Deskripsi Layanan</th>
+              <th style="text-align:center">Qty</th>
+              <th style="text-align:right">Harga Satuan</th>
+              <th style="text-align:right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+
+        <!-- FINANCE SUMMARY -->
+        <div class="inv-finance">
+          <div class="inv-finance-box">
+            <div class="inv-finance-row">
+              <span>Subtotal</span>
+              <span class="f-val">${fmt(keuangan.subtotal)}</span>
+            </div>
+            ${keuangan.totalDiskon > 0 ? `
+            <div class="inv-finance-row disc-row">
+              <span>${discLabel}</span>
+              <span class="f-val">- ${fmt(keuangan.totalDiskon)}</span>
+            </div>` : ''}
+            <div class="inv-finance-row total-row">
+              <span>TOTAL</span>
+              <span class="f-val">${fmt(keuangan.totalSetelahDiskon)}</span>
+            </div>
+            ${keuangan.dp > 0 ? `
+            <div class="inv-finance-row">
+              <span>DP Dibayar</span>
+              <span class="f-val">- ${fmt(keuangan.dp)}</span>
+            </div>` : ''}
+            <div class="inv-finance-row sisa-row" style="background:#FFF9E6">
+              <span>SISA BAYAR</span>
+              <span class="f-val">${fmt(Math.max(0, keuangan.sisaBayar))}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATUS BADGE -->
+        <div class="inv-status-area">
+          <span class="status-badge ${statusObj.kelas}" style="font-size:8.5pt;padding:4pt 12pt">
+            ${statusObj.icon} ${statusObj.label}
+          </span>
+        </div>
+
+        <!-- PAYMENT INFO -->
+        ${vendor.rekening ? `
+        <div class="inv-payment-box">
+          <div class="inv-payment-title">Informasi Pembayaran</div>
+          Transfer ke: <strong>${esc(vendor.rekening)}</strong><br>
+          Mohon cantumkan nama klien sebagai keterangan transfer.<br>
+          Konfirmasi pembayaran via WhatsApp: <strong>${esc(vendor.noWa)}</strong>
+        </div>` : ''}
+
+        <!-- NOTES -->
+        ${keuangan.catatan ? `
+        <div class="inv-notes-box">
+          <strong style="font-style:normal;color:#1C1917">Catatan:</strong><br>
+          ${esc(keuangan.catatan)}
+        </div>` : ''}
+
+        <!-- FOOTER -->
+        <div class="inv-footer">
+          <div class="inv-footer-thankyou">Terima kasih telah mempercayakan momen berharga Anda kepada kami 💛</div>
+          <div>${esc(vendor.namaStudio)} · ${esc(vendor.alamat)} · ${esc(vendor.noWa)} · Dibuat dengan WedDoc</div>
+          <div style="margin-top:3pt;font-size:6.5pt">No. Invoice: ${esc(meta.nomorInvoice)}</div>
+        </div>
+
+      </div>
+
+      <!-- WATERMARK -->
+      <div class="inv-watermark">INVOICE</div>
+
+    </div>
+  </div>
+  </div>
+  `;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // PRINT
+    // ─────────────────────────────────────────────────────────
+    function printDocument(mode) {
+      document.body.className = 'print-' + mode;
+      window.print();
+      setTimeout(() => { document.body.className = ''; }, 1500);
+    }
+
+    function closePreview() {
+      document.getElementById('previewArea').classList.remove('show');
+      document.getElementById('previewBody').innerHTML = '';
+      currentGenMode = null;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // WHATSAPP
+    // ─────────────────────────────────────────────────────────
+    function kirimWa() {
+      const klien = getKlienData();
+      const vendor = getVendorData();
+      const acara = getAcaraData();
+      const meta = getMetaData();
+
+      const namaKlien = klien.panggilanPria || klien.pria;
+      const tglAcara = fmtTanggalPendek(acara.tglAkad);
+
+      const text = `Halo ${namaKlien}! 👋\n\nSPK & Invoice untuk acara pernikahan Anda pada ${tglAcara} sudah siap, dengan nomor dokumen ${meta.nomorSPK}.\n\nSilakan hubungi kami jika ada pertanyaan atau diperlukan perubahan. 💛\n\n— ${vendor.namaStudio}\n📱 ${vendor.noWa}`;
+
+      const noWa = klien.noWa.replace(/^0/, '62').replace(/[^0-9]/g, '');
+      window.open(`https://wa.me/${noWa}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // HISTORY
+    // ─────────────────────────────────────────────────────────
+    function saveToHistory(data, mode) {
+      const { klien, acara, keuangan, meta } = data;
+      const history = JSON.parse(localStorage.getItem('weddoc_history') || '[]');
+
+      const item = {
+        nomorSPK: meta.nomorSPK,
+        nomorInvoice: meta.nomorInvoice,
+        namaKlien: klien.pria + ' & ' + klien.wanita,
+        tglAcara: acara.tglAkad,
+        total: keuangan.totalSetelahDiskon,
+        tglBuat: meta.tglPembuatan,
+        mode,
+        snapshot: {
+          v_namaStudio: data.vendor.namaStudio,
+          v_namaPemilik: data.vendor.namaPemilik,
+          v_noWa: data.vendor.noWa,
+          v_email: data.vendor.email,
+          v_alamat: data.vendor.alamat,
+          v_rekening: data.vendor.rekening,
+          v_tagline: data.vendor.tagline,
+          k_namaPria: klien.pria,
+          k_namaWanita: klien.wanita,
+          k_panggilanPria: klien.panggilanPria,
+          k_panggilanWanita: klien.panggilanWanita,
+          k_noWa: klien.noWa,
+          k_email: klien.email,
+          a_tglAkad: acara.tglAkad,
+          a_jamAkad: acara.jamAkad,
+          a_tglResepsi: acara.tglResepsi,
+          a_jamResepsi: acara.jamResepsi,
+          a_lokasiAkad: acara.lokasiAkad,
+          a_lokasiResepsi: acara.lokasiResepsi,
+          a_estimasiTamu: acara.estimasiTamu
+        }
+      };
+
+      // Remove duplicate if same nomor
+      const filtered = history.filter(h => h.nomorSPK !== item.nomorSPK);
+      filtered.unshift(item);
+      if (filtered.length > 20) filtered.pop();
+
+      localStorage.setItem('weddoc_history', JSON.stringify(filtered));
+    }
+
+    function openHistory() {
+      const history = JSON.parse(localStorage.getItem('weddoc_history') || '[]');
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+
+      if (history.length === 0) {
+        list.innerHTML = '<div class="history-empty">📭 Belum ada riwayat dokumen</div>';
+      } else {
+        history.forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'history-item';
+          li.innerHTML = `
+        <div class="history-item-title">${esc(item.nomorSPK)}</div>
+        <div class="history-item-meta">
+          ${esc(item.namaKlien)} · ${fmtTanggalPendek(item.tglAcara)} · ${fmt(item.total)}
+          <br>Dibuat: ${fmtTanggalPendek(item.tglBuat)}
+        </div>
+      `;
+          li.onclick = () => loadFromHistory(item);
+          list.appendChild(li);
+        });
+      }
+
+      document.getElementById('historyModal').classList.add('show');
+    }
+
+    function closeHistory() {
+      document.getElementById('historyModal').classList.remove('show');
+    }
+
+    function loadFromHistory(item) {
+      const s = item.snapshot;
+      if (s) {
+        // Fill vendor
+        const vendorFields = ['v_namaStudio', 'v_namaPemilik', 'v_noWa', 'v_email', 'v_alamat', 'v_rekening', 'v_tagline'];
+        vendorFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && s[id] !== undefined) el.value = s[id] || '';
+        });
+        document.getElementById('vendorFormCollapse').classList.add('show');
+
+        // Fill klien & acara
+        const otherFields = ['k_namaPria', 'k_namaWanita', 'k_panggilanPria', 'k_panggilanWanita', 'k_noWa', 'k_email',
+          'a_tglAkad', 'a_jamAkad', 'a_tglResepsi', 'a_jamResepsi', 'a_lokasiAkad', 'a_lokasiResepsi', 'a_estimasiTamu'];
+        otherFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && s[id] !== undefined) el.value = s[id] || '';
+        });
+      }
+      closeHistory();
+      updateDocNumber();
+      showToast('✅ Data dari riwayat berhasil dimuat');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // UTILS
+    // ─────────────────────────────────────────────────────────
+    function fmt(n) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+      }).format(n || 0);
+    }
+
+    function fmtTanggal(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('id-ID', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    }
+
+    function fmtTanggalPendek(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function isiKetentuan(template, data) {
+      const { vendor, klien, acara, keuangan, meta } = data;
+      const jatuhTempo = new Date(acara.tglAkad);
+      jatuhTempo.setDate(jatuhTempo.getDate() - 7);
+
+      const replacements = {
+        '[NAMA_VENDOR]': vendor.namaStudio || '',
+        '[DP_AMOUNT]': fmt(keuangan.dp),
+        '[TANGGAL_DEADLINE_DP]': fmtTanggalPendek(jatuhTempo.toISOString().split('T')[0]),
+        '[SISA_BAYAR]': fmt(Math.max(0, keuangan.sisaBayar)),
+        '[NAMA_KLIEN]': klien.pria + ' & ' + klien.wanita,
+      };
+
+      return Object.entries(replacements).reduce((text, [key, val]) => {
+        return text.split(key).join(val);
+      }, template);
+    }
+
+    function getStatusPembayaran(dp, total) {
+      if (dp <= 0) return { label: 'BELUM ADA PEMBAYARAN', kelas: 'status-belum', icon: '●' };
+      if (dp >= total) return { label: 'LUNAS', kelas: 'status-lunas', icon: '✓' };
+      const persen = Math.round((dp / total) * 100);
+      return { label: `DP ${persen}% — MENUNGGU PELUNASAN`, kelas: 'status-dp', icon: '◐' };
+    }
+
+    function showToast(msg, type) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (type === 'error' ? ' error' : '');
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3200);
+    }
+
+    // Close modal on overlay click
+    document.getElementById('historyModal').addEventListener('click', function (e) {
+      if (e.target === this) closeHistory();
+    });
+
+    // Clear error on input
+    document.querySelectorAll('.form-input, .form-select').forEach(el => {
+      el.addEventListener('input', () => {
+        el.classList.remove('error');
+        const errEl = document.getElementById('err_' + el.id);
+        if (errEl) errEl.classList.remove('show');
+      });
+    });
+
+    // Initial doc number update
+    updateDocNumber();
+  </script>
+</body>
+
+</html>
